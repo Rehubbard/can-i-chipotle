@@ -16,6 +16,10 @@ class Search extends Component {
     this.props.placesNearbySearch(suggestionValue)
   }
 
+  onSuggestionBlur = (event, { highlightedSuggestion }) => {
+    highlightedSuggestion && this.props.placesNearbySearch(highlightedSuggestion.description)
+  }
+
   renderSuggestionsContainer = ({ containerProps , children, query }) => {
    if (children != null) {
      return (
@@ -72,7 +76,8 @@ class Search extends Component {
     const inputProps = {
       onChange: this.onChange.bind(this),
       value: this.state.value,
-      placeholder: "Enter your address or city..."
+      placeholder: "Enter your address or city...",
+      onBlur: this.onSuggestionBlur.bind(this)
     }
     return (
       <div className='search-wrap'>
@@ -87,6 +92,7 @@ class Search extends Component {
             renderSuggestion={this.renderSuggestion}
             renderSuggestionsContainer={this.renderSuggestionsContainer.bind(this)}
             highlightFirstSuggestion={true}
+            focusInputOnSuggestionClick={false}
             inputProps={inputProps}
           />
         </div>

@@ -28,7 +28,7 @@
   z-index: 9999;
   background-image: linear-gradient(0deg,rgba(155,155,155,0.25),rgba(155,155,155,0.25)), url("./img/chipotle-line.jpg");
   background-size: cover;
-  background-position: center;
+  background-position: bottom center;
   background-repeat: no-repeat;
 }
 
@@ -131,6 +131,11 @@
 }
 
 /* Responsive */
+@media (min-width: 1000px) {
+  .search-wrap {
+    height: 350px;
+  }
+}
 @media (max-width: 768px) {
   .react-autosuggest__input, .react-autosuggest__container, .react-autosuggest__suggestions-container {
     width: 400px;

@@ -1,70 +1,101 @@
 import React, { Component } from 'react'
-import _ from 'lodash'
+import Autosuggest from 'react-autosuggest'
 import { autocompleteService, geocoderService, placesService, placesOKStatus, mapService } from '../google-maps'
+import GoogleLogo from '../img/powered_by_google_on_white.png'
+import GoogleLogoWhite from '../img/powered_by_google_on_non_white.png'
+
 
 
 class Search extends Component {
   state = {
-    address: '',
-    predictions: []
+    value: '',
+    suggestions: []
   }
 
-  onChange = (e) => { 
-    this.setState({address: e.target.value}) 
+  onSuggestionSelected = (event, { suggestion, suggestionValue, suggestionIndex, sectionIndex, method }) => {
+    this.props.placesNearbySearch(suggestionValue)
   }
 
-  getAutocompletePlaces = _.debounce(() => {
-    if (this.state.address !== '') {
-      autocompleteService.getPlacePredictions({ input: this.state.address, type: ['locality'] }, (predictions, status) => {
-        if (status != placesOKStatus) {
-          alert(status)
-          return
-        }
-        this.setState({
-          predictions
+  renderSuggestionsContainer = ({ containerProps , children, query }) => {
+   if (children != null) {
+     return (
+       <div {...containerProps}>
+        {children}
+        <div style={{textAlign: 'right'}}>
+          <img src={GoogleLogo} alt="Powered by Google" />
+        </div>
+      </div>
+     )
+   } else {
+    return (
+      <div {...containerProps}>
+       <div style={{textAlign: 'right'}}>
+         <img src={GoogleLogoWhite} alt="Powered by Google" />
+       </div>
+     </div>
+    )
+   }
+  }
+
+  onSuggestionsFetchRequested = ({ value }) => {
+    const inputValue = value.trim()
+
+    inputValue.length === 0 
+      ? [] 
+      : autocompleteService.getPlacePredictions({ input: inputValue, type: ['locality'] }, (predictions, status) => {
+          if (status != placesOKStatus) {
+            alert("Google Places autocomplete error: ", status)
+          }
+          this.setState({ suggestions: predictions })
         })
-      })
-    }
-    }, 150)
+  }
 
-  handleSearch = (e) => {
-    e.preventDefault()
-    let address = e.currentTarget.textContent
-    geocoderService.geocode({ address: address }, (results, status) => {
-      this.createMap(results[0].geometry.location)
+  onSuggestionsClearRequested = () => {
+    this.setState({ suggestions: [] })
+  }
+
+  getSuggestionValue = (value) => {
+    return value.description
+  }
+
+  renderSuggestion = (suggestion) =>
+    <div>
+      {suggestion.description}
+    </div>
+
+  onChange = (event, { newValue }) => {
+    this.setState({ 
+      value: newValue
     })
   }
 
-  createMap = (LatLng) => {
-    const map = mapService(document.getElementById('map'), { center: LatLng, zoom: 8 })
-
-    const places = placesService(map);
-    places.nearbySearch({ location: LatLng, radius: '32186', name: 'Chipotle', keyword: 'chipotle', type: ['restaurant']}, (results, status) => {
-      this.props.handleResults(results)
-    });
-  }
-
   render () {
+    const inputProps = {
+      onChange: this.onChange.bind(this),
+      value: this.state.value,
+      placeholder: "Enter your address or city..."
+    }
     return (
-      <div>
-        <form onSubmit={this.handleSearch.bind(this)}>
-          <input
-            value={this.state.address}
-            onChange={this.onChange.bind(this)}
-            onKeyUp={() => { this.getAutocompletePlaces() }}
+      <div className='search-wrap'>
+        <div className='container full-height text-center'>
+          <h2>Can I Chipotle?</h2>
+          <Autosuggest
+            suggestions={this.state.suggestions}
+            onSuggestionsFetchRequested={this.onSuggestionsFetchRequested.bind(this)}
+            onSuggestionsClearRequested={this.onSuggestionsClearRequested.bind(this)}
+            onSuggestionSelected={this.onSuggestionSelected.bind(this)}
+            getSuggestionValue={this.getSuggestionValue.bind(this)}
+            renderSuggestion={this.renderSuggestion}
+            renderSuggestionsContainer={this.renderSuggestionsContainer.bind(this)}
+            highlightFirstSuggestion={true}
+            inputProps={inputProps}
           />
-        </form>
-        {(this.state.predictions.length > 0 && this.state.address.length > 0) && this.renderPredictions()}
-
+        </div>
       </div>
     
     )
   }
 
-  renderPredictions = () =>
-    this.state.predictions.map(({ description, id }) => {
-      return <div key={id} onClick={(e) => { this.handleSearch(e) }}>{description}</div>
-    })
 }
 
 export default Search

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Autosuggest from 'react-autosuggest'
-import { autocompleteService, geocoderService, placesService, placesOKStatus, mapService } from '../google-maps'
+import { autocompleteService, placesOKStatus } from '../google-maps'
 import GoogleLogo from '../img/powered_by_google_on_white.png'
 import GoogleLogoWhite from '../img/powered_by_google_on_non_white.png'
 
@@ -44,8 +44,9 @@ class Search extends Component {
       ? [] 
       : autocompleteService.getPlacePredictions({ input: inputValue, type: ['locality'] }, (predictions, status) => {
           if (status != placesOKStatus) {
-            alert("Google Places autocomplete error: ", status)
+            return
           }
+          console.log(predictions)
           this.setState({ suggestions: predictions })
         })
   }
@@ -54,13 +55,11 @@ class Search extends Component {
     this.setState({ suggestions: [] })
   }
 
-  getSuggestionValue = (value) => {
-    return value.description
-  }
+  getSuggestionValue = value => value.description
 
-  renderSuggestion = (suggestion) =>
+  renderSuggestion = ({ description }) =>
     <div>
-      {suggestion.description}
+      {description}
     </div>
 
   onChange = (event, { newValue }) => {

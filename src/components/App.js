@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
-import { geocoderService, placesService, placesOKStatus, mapService } from '../google-maps'
+import { geocoderService, placesService, mapService } from '../google-maps'
 import Search from './Search'
 import Results from './Results'
 
 const SEARCH_KEYWORD = 'Chipotle'
-const SEARCH_RADIUS = '32186'
+const SEARCH_RADIUS = '32186' // 32186 meters = about 20 miles
 const SEARCH_TYPE = ['restaurant']
 
 class App extends Component {
-
   state = {
     results: [],
     searchValue: ''
   }
+
   createMapAndNearbySearch = (LatLng, searchValue) => {
     const map = mapService(document.getElementById('map'), { center: LatLng, zoom: 8 })
 

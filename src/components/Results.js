@@ -5,10 +5,7 @@ import ThumbsDown from '../img/thumbsdown.svg'
 
 class Results extends Component {
 
-
-
   render () {
-    console.log(this.props.searchValue)
     return (
       <div className='results-wrap container'>
         {this.props.searchValue.length > 0 && this.renderResultsHeader()}
@@ -37,19 +34,14 @@ class Results extends Component {
     </div>
 
   renderCard = (result, i) => {
-    const hasImage = result.photos
-    var imageUrl
-    if (hasImage) {
-      imageUrl = result.photos[0].getUrl({maxHeight: 250})
-    } else {
-      imageUrl = 'http://josephpanthony.com/wp-content/uploads/2017/06/placeholder2.png'
-    }
+    const address = result.formatted_address
+    const imageUrl = result.photos ? result.photos[0].getUrl({maxHeight: 250}) : 'http://josephpanthony.com/wp-content/uploads/2017/06/placeholder2.png'
     return (
       <div className="card mx-auto" key={i}>
           <div className="card-img-top" style={{backgroundImage: `url(${imageUrl})`}}></div>
           <div className="card-body">
-            <p className="card-text">{result.formatted_address}</p>
-            <a href={`https://www.google.com/maps/place/${result.formatted_address}`} className='btn btn-primary'>View</a>
+            <p className="card-text">{address}</p>
+            <a href={`https://www.google.com/maps/place/${address}`} className='btn btn-primary'>View</a>
           </div>
       </div>
     )
